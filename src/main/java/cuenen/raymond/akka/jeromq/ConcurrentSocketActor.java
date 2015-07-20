@@ -328,9 +328,6 @@ public class ConcurrentSocketActor extends UntypedActor {
                 poller.unregister(socket);
                 socket.close();
             }
-            if (DefaultContext.equals(zmqContext)) {
-                zmqContext.term();
-            }
         } finally {
             notifyListener(Closed);
         }
