@@ -119,18 +119,6 @@ public final class ZeroMQ {
     }
 
     /**
-     * The message to ask a ZeroMQ socket for its multicast loop configuration.
-     * <pre>
-     * socket.ask(multicastLoop())
-     * </pre>
-     *
-     * @return the single instance of MulticastLoop
-     */
-    public static SocketOptionQuery multicastLoop() {
-        return MulticastLoop;
-    }
-
-    /**
      * The message to ask a ZeroMQ socket for its rate configuration.
      * <pre>
      * socket.ask(rate())
@@ -231,18 +219,6 @@ public final class ZeroMQ {
      */
     public static SocketOptionQuery sendHighWatermark() {
         return SendHighWatermark;
-    }
-
-    /**
-     * The message to ask a ZeroMQ socket for its swap configuration.
-     * <pre>
-     * socket.ask(swap())
-     * </pre>
-     *
-     * @return the single instance of Swap
-     */
-    public static SocketOptionQuery swap() {
-        return Swap;
     }
 
     private ZeroMQ() {

@@ -27,16 +27,16 @@ import java.util.Objects;
  * {@code value} - The value in milliseconds for the linger option
  */
 public class Linger implements SocketOption {
-    
+
     public static final Linger no = new Linger(0);
 
-    public static Linger create(long value) {
+    public static Linger create(int value) {
         return new Linger(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public Linger(long value) {
+    public Linger(int value) {
         this.value = value;
     }
 

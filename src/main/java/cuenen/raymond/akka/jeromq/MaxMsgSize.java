@@ -11,13 +11,13 @@ import java.util.Objects;
  */
 public class MaxMsgSize implements SocketOption {
 
-    public static MaxMsgSize create(long value) {
+    public static MaxMsgSize create(int value) {
         return new MaxMsgSize(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public MaxMsgSize(long value) {
+    public MaxMsgSize(int value) {
         this.value = value;
     }
 

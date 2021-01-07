@@ -18,13 +18,13 @@ import java.util.Objects;
  */
 public class ReconnectIVLMax implements SocketOption {
 
-    public static ReconnectIVLMax create(long value) {
+    public static ReconnectIVLMax create(int value) {
         return new ReconnectIVLMax(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public ReconnectIVLMax(long value) {
+    public ReconnectIVLMax(int value) {
         this.value = value;
     }
 

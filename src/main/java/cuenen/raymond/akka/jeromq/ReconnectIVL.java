@@ -16,13 +16,13 @@ import java.util.Objects;
  */
 public class ReconnectIVL implements SocketOption {
 
-    public static ReconnectIVL create(long value) {
+    public static ReconnectIVL create(int value) {
         return new ReconnectIVL(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public ReconnectIVL(long value) {
+    public ReconnectIVL(int value) {
         this.value = value;
     }
 

@@ -13,13 +13,13 @@ import java.util.Objects;
  */
 public class SendBufferSize implements SocketOption {
 
-    public static SendBufferSize create(long value) {
+    public static SendBufferSize create(int value) {
         return new SendBufferSize(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public SendBufferSize(long value) {
+    public SendBufferSize(int value) {
         this.value = value;
     }
 

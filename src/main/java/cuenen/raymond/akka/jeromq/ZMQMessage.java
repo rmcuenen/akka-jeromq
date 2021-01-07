@@ -36,6 +36,7 @@ public class ZMQMessage {
         return new ZMQMessage(Arrays.asList(frames));
     }
 
+    @SafeVarargs
     public static <T> ZMQMessage create(Converter<T> converter, T... frames) {
         final List<ByteString> frameList = new ArrayList<>();
         for (T frame : frames) {

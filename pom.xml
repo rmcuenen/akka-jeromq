@@ -7,15 +7,15 @@
     <packaging>jar</packaging>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <akka.version>2.5.17</akka.version>
-        <jeromq.version>0.4.3</jeromq.version>
-        <junit.version>4.12</junit.version>
-        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <akka.version>2.6.10</akka.version>
+        <jeromq.version>0.5.2</jeromq.version>
+        <junit.version>4.13.1</junit.version>
+        <maven-compiler-plugin.version>3.8.1</maven-compiler-plugin.version>
     </properties>
     <dependencies>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-actor_2.12</artifactId>
+            <artifactId>akka-actor_2.13</artifactId>
             <version>${akka.version}</version>
         </dependency>
         <dependency>
@@ -25,7 +25,7 @@
         </dependency>
         <dependency>
             <groupId>com.typesafe.akka</groupId>
-            <artifactId>akka-testkit_2.12</artifactId>
+            <artifactId>akka-testkit_2.13</artifactId>
             <version>${akka.version}</version>
             <scope>test</scope>
         </dependency>

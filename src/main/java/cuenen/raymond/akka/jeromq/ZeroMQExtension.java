@@ -1,5 +1,6 @@
 package cuenen.raymond.akka.jeromq;
 
+import akka.actor.AbstractActor;
 import akka.actor.AbstractExtensionId;
 import akka.actor.ActorRef;
 import akka.actor.ActorSystem;
@@ -11,7 +12,6 @@ import akka.actor.Props;
 import akka.actor.SupervisorStrategy;
 import akka.actor.SupervisorStrategy.Directive;
 import static akka.actor.SupervisorStrategy.*;
-import akka.actor.UntypedActor;
 import akka.dispatch.RequiresMessageQueue;
 import akka.dispatch.UnboundedMessageQueueSemantics;
 import akka.japi.Function;
@@ -403,7 +403,7 @@ public final class ZeroMQExtension implements Extension {
         }
     }
 
-    private static class ZeroMQGuardian extends UntypedActor implements RequiresMessageQueue<UnboundedMessageQueueSemantics> {
+    private static class ZeroMQGuardian extends AbstractActor implements RequiresMessageQueue<UnboundedMessageQueueSemantics> {
 
         private final SupervisorStrategy supervisorStrategy = new OneForOneStrategy(-1, Duration.Inf(), new Function<Throwable, SupervisorStrategy.Directive>() {
 
@@ -432,12 +432,11 @@ public final class ZeroMQExtension implements Extension {
         }
 
         @Override
-        public void onReceive(Object message) throws Exception {
-            if (message instanceof Props) {
-                sender().tell(getContext().actorOf((Props) message), self());
-            } else {
-                unhandled(message);
-            }
+        public Receive createReceive() {
+            return receiveBuilder()
+                    .match(Props.class, message -> sender().tell(getContext().actorOf(message), self()))
+                    .matchAny(this::unhandled)
+                    .build();
         }
 
     }

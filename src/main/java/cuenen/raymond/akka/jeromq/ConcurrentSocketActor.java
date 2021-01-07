@@ -1,8 +1,8 @@
 package cuenen.raymond.akka.jeromq;
 
+import akka.actor.AbstractActor;
 import akka.actor.ActorRef;
 import akka.actor.Terminated;
-import akka.actor.UntypedActor;
 import akka.japi.function.Procedure;
 import akka.util.ByteString;
 import static cuenen.raymond.akka.jeromq.Response.*;
@@ -11,13 +11,13 @@ import static cuenen.raymond.akka.jeromq.SocketType.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import org.zeromq.ZMQ;
 import org.zeromq.ZMQ.Poller;
 import org.zeromq.ZMQ.Socket;
-import scala.Option;
 import scala.concurrent.duration.FiniteDuration;
 
-public class ConcurrentSocketActor extends UntypedActor {
+public class ConcurrentSocketActor extends AbstractActor  {
 
     private static interface PollMsg {
 
@@ -58,7 +58,7 @@ public class ConcurrentSocketActor extends UntypedActor {
     private final ZMQSocketType socketType;
     private final Socket socket;
     private final Poller poller;
-    private final Option<ActorRef> listenerOp;
+    private final Optional<ActorRef> listenerOp;
     private final List<List<ByteString>> pendingSends = new ArrayList<>();
     private final Procedure<PollMsg> doPollTimeout;
 
@@ -88,7 +88,7 @@ public class ConcurrentSocketActor extends UntypedActor {
         }
         socket = zmqContext.socket(socketType);
         poller = zmqContext.poller();
-        listenerOp = lst == null ? Option.<ActorRef>empty() : Option.apply(lst);
+        listenerOp = Optional.ofNullable(lst);
         doPollTimeout = new Procedure<PollMsg>() {
 
             private final ZeroMQExtension ext = ZeroMQExtension.get(getContext().system());
@@ -122,20 +122,15 @@ public class ConcurrentSocketActor extends UntypedActor {
     }
 
     @Override
-    public void onReceive(Object message) throws Exception {
-        if (message instanceof PollMsg) {
-            doPoll((PollMsg) message);
-        } else if (message instanceof ZMQMessage) {
-            handleRequest(Send.create(((ZMQMessage) message).frames));
-        } else if (message instanceof Request) {
-            handleRequest((Request) message);
-        } else if (Flush.equals(message)) {
-            flush();
-        } else if (message instanceof Terminated) {
-            getContext().stop(self());
-        } else {
-            unhandled(message);
-        }
+    public Receive createReceive() {
+        return receiveBuilder()
+                .match(PollMsg.class, this::doPoll)
+                .match(ZMQMessage.class, message -> handleRequest(Send.create(message.frames)))
+                .match(Request.class, this::handleRequest)
+                .matchEquals(Flush, message -> flush())
+                .match(Terminated.class, message -> getContext().stop(self()))
+                .matchAny(this::unhandled)
+                .build();
     }
 
     private void handleRequest(Request msg) throws Exception {
@@ -201,8 +196,6 @@ public class ConcurrentSocketActor extends UntypedActor {
             socket.setRcvHWM(((ReceiveHighWatermark) msg).value);
         } else if (msg instanceof HighWatermark) {
             socket.setHWM(((HighWatermark) msg).value);
-        } else if (msg instanceof Swap) {
-            socket.setSwap(((Swap) msg).value);
         } else if (msg instanceof Affinity) {
             socket.setAffinity(((Affinity) msg).value);
         } else if (msg instanceof Identity) {
@@ -211,8 +204,6 @@ public class ConcurrentSocketActor extends UntypedActor {
             socket.setRate(((Rate) msg).value);
         } else if (msg instanceof RecoveryInterval) {
             socket.setRecoveryInterval(((RecoveryInterval) msg).value);
-        } else if (msg instanceof MulticastLoop) {
-            socket.setMulticastLoop(((MulticastLoop) msg).value);
         } else if (msg instanceof MulticastHops) {
             socket.setMulticastHops(((MulticastHops) msg).value);
         } else if (msg instanceof SendBufferSize) {
@@ -242,8 +233,6 @@ public class ConcurrentSocketActor extends UntypedActor {
             message = socket.getSndHWM();
         } else if (ReceiveHighWatermark.equals(msg)) {
             message = socket.getRcvHWM();
-        } else if (Swap.equals(msg)) {
-            message = socket.getSwap();
         } else if (Affinity.equals(msg)) {
             message = socket.getAffinity();
         } else if (Identity.equals(msg)) {
@@ -252,8 +241,6 @@ public class ConcurrentSocketActor extends UntypedActor {
             message = socket.getRate();
         } else if (RecoveryInterval.equals(msg)) {
             message = socket.getRecoveryInterval();
-        } else if (MulticastLoop.equals(msg)) {
-            message = socket.hasMulticastLoop();
         } else if (MulticastHops.equals(msg)) {
             message = socket.getMulticastHops();
         } else if (SendBufferSize.equals(msg)) {
@@ -309,7 +296,7 @@ public class ConcurrentSocketActor extends UntypedActor {
     }
 
     @Override
-    public void preRestart(Throwable reason, Option<Object> message) throws Exception {
+    public void preRestart(Throwable reason, Optional<Object> message) throws Exception {
         for (ActorRef child : getContext().getChildren()) {
             getContext().stop(child);
         }
@@ -399,13 +386,13 @@ public class ConcurrentSocketActor extends UntypedActor {
     }
 
     private void watchListener() throws Exception {
-        if (listenerOp.isDefined()) {
+        if (listenerOp.isPresent()) {
             getContext().watch(listenerOp.get());
         }
     }
 
     private void notifyListener(Object message) throws Exception {
-        if (listenerOp.isDefined()) {
+        if (listenerOp.isPresent()) {
             listenerOp.get().tell(message, self());
         }
     }

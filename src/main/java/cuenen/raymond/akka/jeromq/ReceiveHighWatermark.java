@@ -17,13 +17,13 @@ import java.util.Objects;
  */
 public class ReceiveHighWatermark implements SocketOption {
 
-    public static ReceiveHighWatermark create(long value) {
+    public static ReceiveHighWatermark create(int value) {
         return new ReceiveHighWatermark(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public ReceiveHighWatermark(long value) {
+    public ReceiveHighWatermark(int value) {
         this.value = value;
     }
 

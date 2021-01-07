@@ -6,9 +6,9 @@ import akka.actor.Cancellable;
 import akka.event.Logging;
 import akka.event.LoggingAdapter;
 import akka.japi.JavaPartialFunction;
-import akka.testkit.JavaTestKit;
 import akka.testkit.TestKitExtension;
 import akka.testkit.TestProbe;
+import akka.testkit.javadsl.TestKit;
 import akka.util.ByteString;
 import akka.util.Timeout;
 import static cuenen.raymond.akka.jeromq.Response.*;
@@ -19,10 +19,10 @@ import org.junit.AfterClass;
 import static org.junit.Assert.*;
 import org.junit.AssumptionViolatedException;
 import org.junit.Test;
-import scala.collection.JavaConversions;
+import scala.collection.JavaConverters;
 import scala.concurrent.duration.Duration;
 
-public class ConcurrentSocketActorTest extends JavaTestKit {
+public class ConcurrentSocketActorTest extends TestKit {
 
     /**
      * Convenience accessor to subscribe to all events
@@ -40,8 +40,8 @@ public class ConcurrentSocketActorTest extends JavaTestKit {
 
     @AfterClass
     public static void afterAll() throws Exception {
-        JavaTestKit.shutdownActorSystem(system,
-                duration("5 seconds").mul(TestKitExtension.get(system).TestTimeFactor()).min(duration("10 seconds")),
+        TestKit.shutdownActorSystem(system,
+                Duration.apply("5 seconds").mul(TestKitExtension.get(system).TestTimeFactor()).min(Duration.apply("10 seconds")),
                 Boolean.FALSE);
     }
 
@@ -93,7 +93,7 @@ public class ConcurrentSocketActorTest extends JavaTestKit {
         final ActorRef publisher = zmq().newSocket(SocketType.Pub, context, Bind.create(endpoint));
         final ActorRef subscriber = zmq().newSocket(SocketType.Sub, context, Listener.create(subscriberProbe.ref()),
                 Connect.create(endpoint), SubscribeAll);
-        final Cancellable msgGenerator = system.scheduler().schedule(
+        final Cancellable msgGenerator = system.scheduler().scheduleAtFixedRate(
                 duration("100 millis"),
                 duration("10 millis"),
                 new Runnable() {
@@ -103,14 +103,14 @@ public class ConcurrentSocketActorTest extends JavaTestKit {
                     @Override
                     public void run() {
                         publisher.tell(ZMQMessage.create(ByteString.fromString(String.valueOf(number)),
-                                        ByteString.empty()), getRef());
+                                        ByteString.emptyByteString()), getRef());
                         number += 1;
                     }
                 },
                 system.dispatcher());
         try {
             subscriberProbe.expectMsg(Connecting);
-            List<Integer> msgNumbers = JavaConversions.seqAsJavaList(subscriberProbe.receiveWhile(duration("3 seconds"), Duration.Inf(), Integer.MAX_VALUE,
+            List<Integer> msgNumbers = JavaConverters.asJava(subscriberProbe.receiveWhile(duration("3 seconds"), Duration.Inf(), Integer.MAX_VALUE,
                     new JavaPartialFunction<Object, Integer>() {
 
                         @Override
@@ -147,10 +147,10 @@ public class ConcurrentSocketActorTest extends JavaTestKit {
                         }
                     }).last();
             assertEquals(Closed, msg);
-            expectTerminated(duration("5 seconds"), subscriber);
+            expectTerminated(java.time.Duration.ofSeconds(5), subscriber);
             watch(publisher);
             system.stop(publisher);
-            expectTerminated(duration("5 seconds"), publisher);
+            expectTerminated(java.time.Duration.ofSeconds(5), publisher);
             context.term();
         }
     }
@@ -179,10 +179,10 @@ public class ConcurrentSocketActorTest extends JavaTestKit {
             watch(replier);
             system.stop(replier);
             replierProbe.expectMsg(Closed);
-            expectTerminated(duration("5 seconds"), replier);
+            expectTerminated(java.time.Duration.ofSeconds(5), replier);
             watch(requester);
             system.stop(requester);
-            expectTerminated(duration("5 seconds"), requester);
+            expectTerminated(java.time.Duration.ofSeconds(5), requester);
             context.term();
         }
     }
@@ -206,10 +206,10 @@ public class ConcurrentSocketActorTest extends JavaTestKit {
             watch(puller);
             system.stop(puller);
             pullerProbe.expectMsg(Closed);
-            expectTerminated(duration("5 seconds"), puller);
+            expectTerminated(java.time.Duration.ofSeconds(5), puller);
             watch(pusher);
             system.stop(pusher);
-            expectTerminated(duration("5 seconds"), pusher);
+            expectTerminated(java.time.Duration.ofSeconds(5), pusher);
             context.term();
         }
     }

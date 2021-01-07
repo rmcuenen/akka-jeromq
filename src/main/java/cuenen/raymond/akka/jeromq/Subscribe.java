@@ -21,7 +21,7 @@ import java.util.Objects;
  */
 public class Subscribe implements PubSubOption {
 
-    public static final Subscribe all = new Subscribe(ByteString.empty());
+    public static final Subscribe all = new Subscribe(ByteString.emptyByteString());
 
     public static Subscribe create(ByteString payload) {
         return new Subscribe(payload);

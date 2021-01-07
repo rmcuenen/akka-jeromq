@@ -10,13 +10,13 @@ import java.util.Objects;
  */
 public class Backlog implements SocketOption {
 
-    public static Backlog create(long value) {
+    public static Backlog create(int value) {
         return new Backlog(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public Backlog(long value) {
+    public Backlog(int value) {
         this.value = value;
     }
 

@@ -11,13 +11,13 @@ import java.util.Objects;
  */
 public class ReceiveBufferSize implements SocketOption {
 
-    public static ReceiveBufferSize create(long value) {
+    public static ReceiveBufferSize create(int value) {
         return new ReceiveBufferSize(value);
     }
 
-    public final long value;
+    public final int value;
 
-    public ReceiveBufferSize(long value) {
+    public ReceiveBufferSize(int value) {
         this.value = value;
     }
 

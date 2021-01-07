@@ -99,18 +99,6 @@ public interface SocketOptionQuery extends Request {
     };
 
     /**
-     * Gets the {@link cuenen.raymond.akka.jeromq.Swap}.
-     */
-    public static final SocketOptionQuery Swap = new SocketOptionQuery() {
-
-        @Override
-        public String toString() {
-            return "Swap";
-        }
-
-    };
-
-    /**
      * Gets the {@link cuenen.raymond.akka.jeromq.Affinity} value.
      */
     public static final SocketOptionQuery Affinity = new SocketOptionQuery() {
@@ -154,18 +142,6 @@ public interface SocketOptionQuery extends Request {
         @Override
         public String toString() {
             return "RecoveryInterval";
-        }
-
-    };
-
-    /**
-     * Gets the {@link cuenen.raymond.akka.jeromq.MulticastLoop}.
-     */
-    public static final SocketOptionQuery MulticastLoop = new SocketOptionQuery() {
-
-        @Override
-        public String toString() {
-            return "MulticastLoop";
         }
 
     };
